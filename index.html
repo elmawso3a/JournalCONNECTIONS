@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Journal 2 Connections</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F7F3EE; --surface:#FFFCF8; --ink:#25232A; --muted:#6A646B; --line:#E2D9D0;
+  --accent:#9A512B; --accent-ink:#FFFFFF; --accent-soft:#F0DCCB;
+  --ok:#2E7D4F; --bad:#B3392F;
+  --g1:#2F6F6A; --g2:#7F6210; --g3:#3F5D8F; --g4:#A34A52; --g5:#6E4F8C;
+  --display:'Baloo Bhaijaan 2','Cairo','Segoe UI',Tahoma,sans-serif;
+  --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,'Noto Sans Arabic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1C21; --surface:#27262C; --ink:#F2ECE6; --muted:#A9A1A6; --line:#3A383F;
+    --accent:#EDB892; --accent-ink:#1D1C21; --accent-soft:#3A2E27;
+    --ok:#7BCB9A; --bad:#F0988F;
+    --g1:#7FC4BC; --g2:#DDB95C; --g3:#8FB0E6; --g4:#E59AA0; --g5:#B99AD8;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1D1C21; --surface:#27262C; --ink:#F2ECE6; --muted:#A9A1A6; --line:#3A383F;
+  --accent:#EDB892; --accent-ink:#1D1C21; --accent-soft:#3A2E27;
+  --ok:#7BCB9A; --bad:#F0988F;
+  --g1:#7FC4BC; --g2:#DDB95C; --g3:#8FB0E6; --g4:#E59AA0; --g5:#B99AD8;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75}
+img{max-width:100%}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+.wrap{max-width:56rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ===== language switching (all text exists twice, CSS shows one) ===== */
+#app[data-lang="en"] .ar{display:none!important}
+#app[data-lang="ar"] .en{display:none!important}
+
+/* ===== header ===== */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.brandrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;padding-top:.7rem}
+.brand{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.brand b{font-family:var(--display);font-weight:800;font-size:1.25rem;line-height:1.2}
+.brand span{color:var(--muted);font-size:.85rem}
+.right{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.prog{display:flex;align-items:center;gap:.6rem;font-size:.85rem;color:var(--muted)}
+.bar{display:block;width:6rem;height:6px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .7s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:shine 2.6s ease-in-out infinite}
+.lang{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface);direction:ltr}
+.lang::before{content:"";position:absolute;inset:3px auto 3px 3px;width:calc(50% - 3px);background:var(--accent);border-radius:7px;transition:transform .4s cubic-bezier(.3,.8,.3,1)}
+#app[data-lang="en"] .lang::before{transform:translateX(100%)}
+.lang button{position:relative;z-index:1;border:0;background:transparent;cursor:pointer;padding:.25rem .85rem;font-weight:600;font-size:.85rem;color:var(--muted);transition:color .3s}
+.lang button[aria-pressed="true"]{color:var(--accent-ink)}
+.tabs{display:flex;gap:.25rem;margin-top:.35rem}
+.tabs a{padding:.55rem .95rem;text-decoration:none;color:var(--muted);font-weight:500;border-bottom:3px solid transparent;transition:color .25s,border-color .25s,background .25s;border-radius:6px 6px 0 0}
+.tabs a:hover{color:var(--ink);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+main{padding-block:1.5rem 3rem}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,6.5vw,3.3rem);line-height:1.2;text-wrap:balance;margin-top:.35rem}
+.lead{margin-top:.8rem;max-width:42rem;font-size:1.05rem}
+.lead bdi{font-family:var(--mono);font-size:.92em}
+.sub{margin-top:1.6rem;font-size:.82rem;color:var(--muted);font-weight:500}
+
+/* ===== five verbs ===== */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr));gap:.6rem;margin-top:.5rem}
+.tile{--g:var(--g1);text-align:start;cursor:pointer;display:flex;flex-direction:column;gap:.15rem;padding:.8rem .9rem;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--g) 11%,var(--surface));position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+.tile::before{content:attr(data-n);position:absolute;inset-block-start:.4rem;inset-inline-end:.7rem;font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1;color:var(--g);opacity:.14;transition:opacity .3s,transform .4s}
+.tile b{font-family:var(--display);font-size:1.25rem;line-height:1.3;color:var(--g)}
+.tile span{font-size:.85rem;font-weight:600}
+.tile small{color:var(--muted);font-size:.78rem;line-height:1.5}
+.tile:hover{border-color:var(--g);transform:translateY(-4px);box-shadow:0 10px 24px -14px var(--g)}
+.tile:hover::before{opacity:.32;transform:scale(1.15)}
+.tile:active{transform:translateY(-1px) scale(.98)}
+
+/* ===== template ===== */
+.tpl{margin-top:1.4rem;padding:1rem 1.1rem;border:1px dashed var(--line);border-radius:10px;display:grid;gap:.9rem}
+.tpl ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.7rem}
+.tpl li{font-size:.9rem;line-height:1.6}
+.tpl li b{display:block;font-family:var(--display);font-size:1.05rem;color:var(--accent)}
+.tpl p{font-size:.9rem;color:var(--muted)}
+
+/* ===== explainer cards (animations) ===== */
+.card{margin-top:1.6rem;padding:1.1rem 1.2rem 1.2rem;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.card h2{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1.35}
+.card .cap{margin-top:.2rem;font-size:.92rem;color:var(--muted);max-width:44rem}
+.card .head{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:flex-start;justify-content:space-between}
+.viz{width:100%;height:auto;display:block;direction:ltr;margin-top:.8rem}
+.viz text{font-family:var(--body);fill:var(--ink);font-size:13px}
+.viz .mut{fill:var(--muted);font-size:12px}
+.viz .big{font-family:var(--mono);font-size:15px;font-weight:500}
+.viz .gl{stroke:var(--line);stroke-width:1}
+.viz .ax{stroke:var(--muted);stroke-width:1.5}
+.viz .cup{fill:none;stroke:var(--ink);stroke-width:2.5}
+.viz .wall{fill:color-mix(in srgb,var(--g2) 38%,var(--surface));stroke:var(--g2);stroke-width:2}
+.viz .lineA{fill:none;stroke:var(--g4);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.viz .lineB{fill:none;stroke:var(--g1);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.viz .dotA{fill:var(--g4)}.viz .dotB{fill:var(--g1)}
+.viz .heat{fill:var(--g4)}.viz .light{fill:var(--g2)}.viz .water{fill:var(--g3)}
+.viz .safe{fill:none;stroke:var(--g1);stroke-width:1.5;stroke-dasharray:6 6;animation:dash 1.6s linear infinite}
+.viz .l1{fill:color-mix(in srgb,var(--g2) 30%,var(--surface));stroke:var(--g2);stroke-width:1.5}
+.viz .l2{fill:color-mix(in srgb,var(--g1) 30%,var(--surface));stroke:var(--g1);stroke-width:1.5}
+.viz .l3{fill:color-mix(in srgb,var(--g3) 30%,var(--surface));stroke:var(--g3);stroke-width:1.5}
+.viz .barrier{animation:barrierPulse 2.7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.p{transform-box:fill-box;transform-origin:center;opacity:0;animation:hit 2.7s cubic-bezier(.45,.05,.55,.95) infinite}
+.p.d1{animation-delay:.9s}.p.d2{animation-delay:1.8s}
+.lk{transform-box:fill-box;transform-origin:center;opacity:0;animation:leak 4.2s ease-out infinite}
+.steam{fill:none;stroke:var(--g4);stroke-width:3;stroke-linecap:round;opacity:0;animation:steam 2.4s ease-in-out infinite}
+.steam.b2{animation-delay:.5s}.steam.b3{animation-delay:1s}
+.steam.weak{stroke-width:2;animation-duration:3.6s}
+.demo-btn{cursor:pointer;padding:.45rem .95rem;border:0;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;transition:transform .2s,filter .2s}
+.demo-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.demo-btn:active{transform:scale(.96)}
+.verdict{margin-top:.6rem;min-height:1.6rem;font-weight:600;color:var(--g1);opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.verdict.show{opacity:1;transform:none}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-top:.5rem;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;margin-inline-end:.35rem;vertical-align:-1px}
+
+/* ===== groups + LO rows ===== */
+.grp{--g:var(--g1);margin-top:2.4rem;scroll-margin-top:7rem}
+.grp header{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--g);position:relative}
+.grp header::after{content:"";position:absolute;inset-inline-start:0;bottom:-2px;height:2px;width:100%;background:var(--g);transform:scaleX(0);transform-origin:var(--tox,right);transition:transform .9s cubic-bezier(.2,.8,.2,1) .15s}
+#app[data-lang="en"] .grp header::after{--tox:left}
+.grp header{border-bottom-color:color-mix(in srgb,var(--g) 25%,transparent)}
+.grp.in header::after{transform:scaleX(1)}
+.grp h2{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.3;color:var(--g)}
+.grp header p{color:var(--muted);font-size:.95rem}
+.lo{border-bottom:1px solid var(--line)}
+.lo summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.2rem .8rem;align-items:center;padding:.85rem .5rem;border-radius:8px;transition:background .25s}
+.lo summary:hover{background:color-mix(in srgb,var(--g) 7%,transparent)}
+.lo summary::-webkit-details-marker{display:none}
+.tag{font-family:var(--mono);font-size:.74rem;white-space:nowrap;color:var(--g);background:color-mix(in srgb,var(--g) 12%,var(--surface));padding:.15rem .5rem;border-radius:5px}
+.nm{min-width:0}
+.nm b{display:block;font-weight:600;line-height:1.5}
+.nm span.h{display:block;font-size:.85rem;color:var(--muted);line-height:1.5}
+.side{display:flex;align-items:center;gap:.6rem}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--g);display:block;transition:background .3s}
+.dots i.on{background:var(--g);animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.chev{width:.55rem;height:.55rem;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .3s}
+.lo[open] .chev{transform:rotate(-135deg)}
+.lo .body{padding:.2rem .5rem 1.2rem}
+.lo dl{margin:0;display:grid;gap:.75rem}
+.lo dl div{display:grid;gap:.1rem .9rem}
+.lo[open] dl div{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.lo[open] dl div:nth-child(2){animation-delay:.08s}
+.lo[open] dl div:nth-child(3){animation-delay:.16s}
+.lo[open] dl div:nth-child(4){animation-delay:.24s}
+.lo dt{font-size:.78rem;font-weight:600;color:var(--muted)}
+.lo dd{margin:0;min-width:0}
+.lo dl div.link dt{color:var(--g)}
+.lo dl div.link dd{font-weight:500}
+.lo dl div.link dd{border-inline-start:3px solid var(--g);padding-inline-start:.6rem}
+@media(min-width:640px){.lo dl div{grid-template-columns:6.2rem minmax(0,1fr)}.lo dt{padding-top:.3rem}}
+.know{margin-top:1rem;cursor:pointer;padding:.45rem .9rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:.88rem;font-weight:500;transition:background .25s,transform .2s,color .25s}
+.know:active{transform:scale(.95)}
+.know[aria-pressed="true"]{background:var(--g);color:var(--bg);border-color:var(--g)}
+@supports (selector(::details-content)){
+  :root{interpolate-size:allow-keywords}
+  .lo::details-content{block-size:0;overflow:clip;transition:block-size .4s cubic-bezier(.2,.8,.2,1),content-visibility .4s allow-discrete}
+  .lo[open]::details-content{block-size:auto}
+}
+
+/* ===== buttons ===== */
+.btn{cursor:pointer;padding:.6rem 1.1rem;border:0;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-weight:600;transition:transform .2s,filter .2s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.96)}
+.btn.alt{background:var(--surface);color:var(--ink);border:1px solid var(--line);font-weight:500}
+.btn.sm{padding:.4rem .8rem;font-size:.88rem}
+
+/* ===== recall ===== */
+.ctrl{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{cursor:pointer;border:0;padding:.5rem .95rem;background:var(--surface);font-weight:500;transition:background .3s,color .3s}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chip{--g:var(--ink);cursor:pointer;padding:.25rem .7rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.85rem;transition:transform .2s,background .25s,border-color .25s}
+.chip:hover{transform:translateY(-2px)}
+.chip[aria-pressed="true"]{border-color:var(--g);color:var(--g);font-weight:600;background:color-mix(in srgb,var(--g) 12%,var(--surface))}
+.fc{margin-top:1.2rem;padding:1.3rem;border:1px solid var(--line);border-radius:14px;background:var(--surface);display:grid;gap:.9rem;transform-origin:50% 100%}
+.fc.fresh{animation:cardIn .6s cubic-bezier(.2,.8,.2,1)}
+.fc.okp{animation:okPulse .7s ease-out}
+.fc.shake{animation:shake .45s}
+.fc h3{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.3;unicode-bidi:isolate}
+.fc .tag{justify-self:start}
+.cue{color:var(--muted);font-size:.92rem}
+.ans{display:grid;gap:.7rem}
+.ans div{display:grid;gap:.05rem;animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.ans div:nth-child(2){animation-delay:.09s}.ans div:nth-child(3){animation-delay:.18s}
+.ans dt{font-size:.78rem;font-weight:600;color:var(--muted)}
+.ans dd{margin:0}
+.ans .link dd{font-weight:500}
+.row-b{display:flex;flex-wrap:wrap;gap:.6rem}
+.ex{margin:0;padding:.2rem 0;font-size:1.02rem}
+.opts{display:grid;gap:.5rem}
+.opt{cursor:pointer;text-align:start;padding:.65rem .9rem;border:1px solid var(--line);border-radius:9px;background:var(--bg);display:flex;flex-wrap:wrap;gap:.2rem .7rem;align-items:baseline;transition:transform .2s,border-color .25s,background .25s}
+.opt:not(:disabled):hover{transform:translateX(4px);border-color:var(--accent)}
+#app[dir="rtl"] .opt:not(:disabled):hover{transform:translateX(-4px)}
+.opt .tag{background:transparent;padding:0;color:var(--muted)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--surface));animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface));animation:shake .45s}
+.fb{font-weight:600;animation:rise .4s both}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--bad)}
+#gfb p+p{animation:rise .5s .1s both}
+
+/* ===== numbers ===== */
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:.9rem;margin-top:1.2rem}
+.num{padding:1.1rem;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:grid;gap:.6rem;align-content:start;min-width:0;transition:box-shadow .4s,border-color .4s}
+.num.fresh{animation:cardIn .55s cubic-bezier(.2,.8,.2,1)}
+.num.good{border-color:var(--ok);animation:okPulse .8s ease-out}
+.num.bad{animation:shake .45s}
+.num .tag{justify-self:start;color:var(--accent);background:var(--accent-soft)}
+.num h3{font-family:var(--display);font-weight:600;font-size:1.15rem;line-height:1.4}
+.num code{display:block;direction:ltr;text-align:start;font-family:var(--mono);font-size:.82rem;color:var(--muted);overflow-x:auto}
+.inrow{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.inrow input{width:7.5rem;min-width:0;padding:.5rem .6rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-family:var(--mono);direction:ltr;text-align:start;font-variant-numeric:tabular-nums;transition:border-color .25s,box-shadow .25s}
+.inrow input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:none}
+.unit{font-family:var(--mono);font-size:.85rem;color:var(--muted);direction:ltr}
+.res{min-height:1.4rem;font-size:.92rem}
+.res.ok{color:var(--ok);font-weight:600;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.res.no{color:var(--bad);font-weight:600;animation:rise .4s both}
+.sol{font-family:var(--mono);direction:ltr;text-align:start;font-size:.85rem;padding:.5rem .7rem;border-radius:8px;background:var(--accent-soft);animation:rise .45s both}
+
+.foot{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+
+/* ===== entrance + page animations ===== */
+html.js .rv{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.8,.2,1) var(--d,0s),transform .7s cubic-bezier(.2,.8,.2,1) var(--d,0s)}
+html.js .rv.in{opacity:1;transform:none}
+[data-p]:not([hidden]){animation:pageIn .5s cubic-bezier(.2,.8,.2,1)}
+#app.flip main{animation:langFlip .5s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes langFlip{0%{opacity:.15;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes shine{to{transform:translateX(100%)}}
+@keyframes cardIn{from{opacity:0;transform:perspective(900px) rotateX(-14deg) translateY(16px)}to{opacity:1;transform:none}}
+@keyframes okPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}100%{box-shadow:0 0 0 22px transparent}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes dash{to{stroke-dashoffset:-24}}
+@keyframes barrierPulse{0%,100%{filter:none}50%{filter:brightness(1.12)}}
+@keyframes hit{
+  0%{transform:translateX(0) scale(.5);opacity:0}
+  12%{transform:translateX(0) scale(1);opacity:1}
+  55%{transform:translateX(188px) scale(1);opacity:1}
+  62%{transform:translateX(194px) scale(.7,1.4);opacity:1}
+  100%{transform:translateX(60px) scale(.7);opacity:0}
+}
+@keyframes leak{0%{transform:translateX(0);opacity:0}15%{opacity:.75}100%{transform:translateX(230px);opacity:0}}
+@keyframes steam{0%{transform:translateY(8px);opacity:0}35%{opacity:.85}100%{transform:translateY(-14px);opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html.js .rv{opacity:1!important;transform:none!important}
+  .grp header::after{transform:scaleX(1)!important}
+  .p,.lk,.steam{opacity:.7}
+}
+</style>
+</head>
+<body>
+<div id="app" dir="rtl" lang="ar" data-lang="ar">
+<header class="top"><div class="wrap">
+  <div class="brandrow">
+    <div class="brand"><b>Journal 2</b>
+      <span><span class="ar">الكونيكشنز · KFS G10</span><span class="en">Connections · KFS G10</span></span></div>
+    <div class="right">
+      <div class="prog"><span id="progTxt"></span><span class="bar"><i id="progBar"></i></span></div>
+      <div class="lang" role="group" data-al="اللغة" data-ae="Language">
+        <button type="button" data-l="ar" aria-pressed="true">عربي</button>
+        <button type="button" data-l="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+  <nav class="tabs" data-al="أقسام الموقع" data-ae="Site sections" aria-label="أقسام الموقع">
+    <a href="#map" data-t="map"><span class="ar">الخريطة</span><span class="en">Map</span></a>
+    <a href="#drill" data-t="drill"><span class="ar">اختبرني</span><span class="en">Quiz me</span></a>
+    <a href="#numbers" data-t="numbers"><span class="ar">الأرقام</span><span class="en">Numbers</span></a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section id="p-map" data-p="map">
+    <p class="eyebrow rv">Journal 2 · KFS Capstone Club</p>
+    <h1 class="rv" style="--d:.08s"><span class="ar">كل المواد بتحكي نفس الحكاية</span><span class="en">Every subject tells the same story</span></h1>
+    <p class="lead rv" style="--d:.16s">
+      <span class="ar">مشروعنا حاجز <bdi>passive</bdi> بيعزل: بيتحكم في عبور الحرارة أو الضوء أو الميّة، من خامات معاد استخدامها، وكتلته لا تزيد عن <bdi>5 kg</bdi>. الـ 26 LO كلها بتخدم الحكاية دي بفعل واحد من خمسة. احفظ الخمسة أفعال، والباقي هتفهمه لوحده.</span>
+      <span class="en">Our project is a <bdi>passive</bdi> barrier that insulates: it controls the passage of heat, light or water, built from reused materials, with a mass of no more than <bdi>5 kg</bdi>. All 26 LOs serve this story through one of five verbs. Learn the five verbs and the rest will follow.</span>
+    </p>
+
+    <!-- Animation 1: what a passive barrier does -->
+    <div class="card rv" style="--d:.2s">
+      <div class="head"><div>
+        <h2><span class="ar">الحاجز بيعمل إيه؟</span><span class="en">What does the barrier do?</span></h2>
+        <p class="cap"><span class="ar">كل خامة في المشروع بتلعب الدور ده: بتصدّ معظم اللي بيحاول يعدّي، وبيعدّي تسريب صغير بس. شغلنا نقيس التسريب ده ونصغّره.</span><span class="en">Every material in the project plays this role: it blocks most of what tries to cross, and only a small leak gets through. Our job is to measure that leak and shrink it.</span></p>
+      </div></div>
+      <svg class="viz" viewBox="0 0 680 220" role="img" data-al="رسم متحرك: حرارة وضوء وميّة بتصطدم بحاجز عازل" data-ae="Animation: heat, light and water hitting an insulating barrier">
+        <!-- lane labels -->
+        <text x="48" y="70" text-anchor="middle" class="mut"><tspan class="ar">حرارة</tspan><tspan class="en">Heat</tspan></text>
+        <text x="48" y="130" text-anchor="middle" class="mut"><tspan class="ar">ضوء</tspan><tspan class="en">Light</tspan></text>
+        <text x="48" y="190" text-anchor="middle" class="mut"><tspan class="ar">ميّة</tspan><tspan class="en">Water</tspan></text>
+        <!-- particles -->
+        <g>
+          <circle class="p heat" cx="100" cy="48" r="7"/><circle class="p heat d1" cx="100" cy="48" r="7"/><circle class="p heat d2" cx="100" cy="48" r="7"/>
+          <circle class="p light" cx="100" cy="108" r="7"/><circle class="p light d1" cx="100" cy="108" r="7"/><circle class="p light d2" cx="100" cy="108" r="7"/>
+          <circle class="p water" cx="100" cy="168" r="7"/><circle class="p water d1" cx="100" cy="168" r="7"/><circle class="p water d2" cx="100" cy="168" r="7"/>
+        </g>
+        <!-- barrier: three reused layers -->
+        <g class="barrier">
+          <rect class="l1" x="296" y="8" width="18" height="190" rx="3"/>
+          <rect class="l2" x="316" y="8" width="18" height="190" rx="3"/>
+          <rect class="l3" x="336" y="8" width="14" height="190" rx="3"/>
+        </g>
+        <text x="323" y="216" text-anchor="middle" class="mut"><tspan class="ar">حاجز passive من خامات معاد استخدامها</tspan><tspan class="en">Passive barrier, reused materials</tspan></text>
+        <!-- protected side -->
+        <rect class="safe" x="380" y="8" width="290" height="190" rx="14"/>
+        <text x="525" y="30" text-anchor="middle" class="mut"><tspan class="ar">الجانب المحمي</tspan><tspan class="en">Protected side</tspan></text>
+        <g>
+          <circle class="lk heat" cx="372" cy="48" r="3"/><circle class="lk light" cx="372" cy="108" r="3" style="animation-delay:1.3s"/><circle class="lk water" cx="372" cy="168" r="3" style="animation-delay:2.4s"/>
+          <circle class="lk heat" cx="372" cy="48" r="3" style="animation-delay:2.6s"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Animation 2: insulation race -->
+    <div class="card rv" id="demoCard">
+      <div class="head"><div>
+        <h2><span class="ar">جرّبها: سباق العزل</span><span class="en">Try it: the insulation race</span></h2>
+        <p class="cap"><span class="ar">حاويتين بنفس الميّة السخنة (60°C) لمدة 20 دقيقة. الرسم بيوضّح ΔT وإزاي الـ graph بيقارن بين التصميمين.</span><span class="en">Two containers with the same hot water (60°C) for 20 minutes. The graph shows ΔT and how we compare two designs.</span></p>
+      </div>
+      <button type="button" class="demo-btn" id="demoBtn"><span class="ar">شغّل تاني</span><span class="en">Replay</span></button></div>
+      <svg class="viz" viewBox="0 0 680 270" role="img" data-al="رسم متحرك: حاويتين بتبردوا ورسم بياني للحرارة مع الوقت" data-ae="Animation: two containers cooling with a temperature-time graph">
+        <!-- bare cup -->
+        <path class="steam" d="M62 56 q-8 -10 0 -20 q8 -10 0 -20"/>
+        <path class="steam b2" d="M85 56 q-8 -10 0 -20 q8 -10 0 -20"/>
+        <path class="steam b3" d="M108 56 q-8 -10 0 -20 q8 -10 0 -20"/>
+        <rect id="liqA" x="44" y="74" width="82" height="132" rx="7" fill="#e2523c"/>
+        <rect class="cup" x="40" y="70" width="90" height="140" rx="10"/>
+        <text id="tA" x="85" y="226" text-anchor="middle" class="big">60°C</text>
+        <text x="85" y="248" text-anchor="middle" class="mut"><tspan class="ar">بدون عزل</tspan><tspan class="en">No insulation</tspan></text>
+        <!-- insulated cup -->
+        <path class="steam weak" d="M205 56 q-6 -8 0 -16 q6 -8 0 -16"/>
+        <path class="steam weak b2" d="M227 56 q-6 -8 0 -16 q6 -8 0 -16"/>
+        <path class="steam weak b3" d="M249 56 q-6 -8 0 -16 q6 -8 0 -16"/>
+        <rect class="wall" x="172" y="62" width="106" height="156" rx="16"/>
+        <rect id="liqB" x="184" y="74" width="82" height="132" rx="7" fill="#e2523c"/>
+        <rect class="cup" x="180" y="70" width="90" height="140" rx="10"/>
+        <text id="tB" x="225" y="236" text-anchor="middle" class="big">60°C</text>
+        <text x="225" y="258" text-anchor="middle" class="mut"><tspan class="ar">بعزل (كرتون/قماش)</tspan><tspan class="en">Insulated (cardboard/fabric)</tspan></text>
+        <!-- graph -->
+        <line class="gl" x1="360" y1="40" x2="650" y2="40"/><line class="gl" x1="360" y1="100" x2="650" y2="100"/><line class="gl" x1="360" y1="160" x2="650" y2="160"/>
+        <line class="ax" x1="360" y1="40" x2="360" y2="220"/><line class="ax" x1="360" y1="220" x2="650" y2="220"/>
+        <text x="350" y="44" text-anchor="end" class="mut">60</text><text x="350" y="104" text-anchor="end" class="mut">50</text><text x="350" y="164" text-anchor="end" class="mut">40</text><text x="350" y="224" text-anchor="end" class="mut">30</text>
+        <text x="360" y="238" text-anchor="middle" class="mut">0</text><text x="432" y="238" text-anchor="middle" class="mut">5</text><text x="505" y="238" text-anchor="middle" class="mut">10</text><text x="577" y="238" text-anchor="middle" class="mut">15</text><text x="650" y="238" text-anchor="middle" class="mut">20</text>
+        <text x="505" y="259" text-anchor="middle" class="mut"><tspan class="ar">الوقت (دقيقة)</tspan><tspan class="en">Time (min)</tspan></text>
+        <text x="360" y="28" text-anchor="middle" class="mut">°C</text>
+        <polyline id="lnA" class="lineA" points=""/>
+        <polyline id="lnB" class="lineB" points=""/>
+        <circle id="dA" class="dotA" r="5" cx="360" cy="40"/>
+        <circle id="dB" class="dotB" r="5" cx="360" cy="40"/>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--g4)"></i><span class="ar">بدون عزل</span><span class="en">No insulation</span></span>
+        <span><i style="background:var(--g1)"></i><span class="ar">بعزل</span><span class="en">Insulated</span></span>
+        <span id="clock" style="font-family:var(--mono)">t = 0 min</span>
+      </div>
+      <p class="verdict" id="verdict"></p>
+    </div>
+
+    <p class="sub rv"><span class="ar">الخمس أفعال، دوس على أي واحد</span><span class="en">The five verbs, tap any one</span></p>
+    <div class="tiles" id="tiles"></div>
+    <div class="tpl rv">
+      <ol>
+        <li><b><span class="ar">المفهوم</span><span class="en">Concept</span></b><span class="ar">القاعدة نفسها، بمصطلحاتها الإنجليزي.</span><span class="en">The rule itself, with its English terms.</span></li>
+        <li><b><span class="ar">الربط</span><span class="en">Link</span></b><span class="ar">ليه المفهوم ده يخص المشروع.</span><span class="en">Why this concept matters for the project.</span></li>
+        <li><b><span class="ar">المثال</span><span class="en">Example</span></b><span class="ar">حاجة تطبقها على الحاوية، غالبًا برقم.</span><span class="en">Something you apply to the container, usually with a number.</span></li>
+        <li><b><span class="ar">بس</span><span class="en">Caveat</span></b><span class="ar">حدود الربط، وده اللي بيفرق في الإجابة.</span><span class="en">The limits of the link, which is what makes the difference in the answer.</span></li>
+      </ol>
+      <p><span class="ar">الجورنال نفسه كاتب إنه مش للبصمجة. لو نسيت تفصيلة، اسأل نفسك الأربع أسئلة دي وهتطلع الإجابة.</span><span class="en">The journal itself says it isn't for rote memorizing. If you forget a detail, ask yourself these four questions and the answer will come.</span></p>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <section id="p-drill" data-p="drill" hidden>
+    <h1><span class="ar">اختبرني</span><span class="en">Quiz me</span></h1>
+    <p class="lead"><span class="ar">الكارت اللي بتنساه بيرجع لك أكتر. اللي بتعرفه بيبعد، لحد ما يثبت.</span><span class="en">Cards you forget come back more often. Cards you know move further away, until they stick.</span></p>
+    <div class="ctrl" style="margin-top:1rem">
+      <div class="seg" role="group" data-al="نوع الاختبار" data-ae="Quiz type">
+        <button type="button" id="mFlash" aria-pressed="true"><span class="ar">فلاش كارد</span><span class="en">Flashcards</span></button>
+        <button type="button" id="mGuess" aria-pressed="false"><span class="ar">مثال ← LO</span><span class="en">Example → LO</span></button>
+      </div>
+    </div>
+    <div class="chips" id="chips" role="group" data-al="فلتر الأفعال" data-ae="Filter by verb"></div>
+    <div id="stage" aria-live="polite"></div>
+  </section>
+
+  <section id="p-numbers" data-p="numbers" hidden>
+    <h1><span class="ar">الأرقام</span><span class="en">Numbers</span></h1>
+    <p class="lead"><span class="ar">كل الحسابات اللي في الجورنال، بأرقام بتتغير كل مرة. لو بتفهم القانون مش هتفرق معاك الأرقام.</span><span class="en">Every calculation in the journal, with numbers that change each time. If you understand the formula, the numbers won't matter.</span></p>
+    <div class="nums" id="nums"></div>
+  </section>
+
+  <p class="foot"><span class="ar">مبني على Journal 2 من KFS Capstone Club (المؤسسة: Salma Fathy). الأمثلة والأرقام من الجورنال.</span><span class="en">Built on Journal 2 from KFS Capstone Club (founder: Salma Fathy). Examples and numbers are from the journal.</span></p>
+</main>
+</div>
+
+<script>
+(function(){
+document.documentElement.classList.add('js');
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+/* bilingual snippet: both languages in the DOM, CSS shows one */
+var bi=function(a,e){return '<span class="ar">'+esc(a)+'</span><span class="en">'+esc(e)+'</span>'};
+
+var GROUPS=[
+ {v:'يحمي ويعزل',V:'Protect & insulate',q:'إيه اللي بنحميه، وإيه اللي بنمنعه يعدّي؟',Q:'What are we protecting, and what are we stopping from crossing?',css:'--g1'},
+ {v:'يختار الخامة',V:'Choose the material',q:'هنبني من إيه، وليه؟',Q:'What will we build from, and why?',css:'--g2'},
+ {v:'يشكّل ويثبّت',V:'Shape & stabilize',q:'شكله إيه، وهيقف ثابت إزاي؟',Q:'What shape, and how will it stand stable?',css:'--g3'},
+ {v:'يقيس ويختبر',V:'Measure & test',q:'إزاي نثبت إن التصميم شغال؟',Q:'How do we prove the design works?',css:'--g4'},
+ {v:'يوثّق ويعرض',V:'Document & present',q:'إزاي نوصّل شغلنا؟',Q:'How do we communicate our work?',css:'--g5'}
+];
+
+var LOS=[
+{id:'bio1',s:'Biology',lo:1,t:'Cell theory & diseases',g:0,
+ h:'الحرارة تبوّظ الخلايا والأكل',H:'Heat damages cells and food',
+ c:`Cell theory: كل كائن حي مكوّن من خلايا، والخلية هي الوحدة الأساسية للحياة. الأمراض يا infectious (بكتيريا أو فيروسات، وبعضها بينتقل بـ vectors زي البعوض) يا non-infectious (جينات أو بيئة).`,
+ C:`Cell theory: every living organism is made of cells, and the cell is the basic unit of life. Diseases are either infectious (bacteria or viruses, some spread by vectors like mosquitoes) or non-infectious (genetic or environmental).`,
+ l:`البيولوجي والهندسة الاتنين بيدرسوا تأثير الظروف البيئية على الحاجات الحية. الحرارة العالية بتأثر على الخلايا وبتبوّظ الأكل، والتغليف المناسب بيحميه من الحرارة والرطوبة.`,
+ L:`Biology and engineering both study how environmental conditions affect living things. High heat harms cells and spoils food, and proper packaging protects it from heat and moisture.`,
+ e:`البروتوتايب بيقلل heat transfer بخامات عازلة زي كرتون معاد استخدامه أو قماش.`,
+ E:`The prototype reduces heat transfer using insulating materials such as reused cardboard or fabric.`,
+ x:`العزل مش بيقتل الميكروبات ولا بيمنع كل الأمراض. لازم نختبر تأثيره على الحرارة أو انتقال الميّة.`,
+ X:`Insulation doesn't kill microbes or prevent every disease. We must test its effect on heat or water transfer.`},
+{id:'bio2',s:'Biology',lo:2,t:'Prokaryotic vs eukaryotic cells',g:0,
+ h:'الخلية محتاجة ظروف مناسبة',H:'Cells need the right conditions',
+ c:`Prokaryotic (زي bacteria): من غير nucleus. Eukaryotic (نبات وحيوان): فيها nucleus و organelles محاطة بغشاء. الاتنين عندهم cell membrane بتتحكم في اللي بيدخل ويطلع.`,
+ C:`Prokaryotic (e.g. bacteria): no nucleus. Eukaryotic (plants and animals): have a nucleus and membrane-bound organelles. Both have a cell membrane that controls what enters and leaves.`,
+ l:`الخلايا الحية محتاجة ظروف بيئية مناسبة عشان تشتغل، والبروتوتايب مصمم يتحكم في انتقال الطاقة أو المادة عبر حاجز.`,
+ L:`Living cells need suitable environmental conditions to function, and the prototype is designed to control the transfer of energy or matter across a barrier.`,
+ e:`حاوية عازلة حراريًا ممكن تفضّل عينة بيولوجية حساسة في مدى حرارة مناسب وقت أطول. نقارن الحرارة جوّه حاوية معزولة بحرارة جوّه حاوية غير معزولة.`,
+ E:`A thermally insulated container can keep a sensitive biological sample in a suitable temperature range for longer. We compare the temperature inside an insulated container with one inside a non-insulated container.`,
+ x:`العزل الـ passive مش بيتحكم في الحرارة بدقة زي الـ laboratory incubator.`,
+ X:`Passive insulation doesn't control temperature as precisely as a laboratory incubator.`},
+{id:'bio3',s:'Biology',lo:3,t:'Membrane, diffusion & osmosis',g:0,
+ h:'الـ membrane حاجز زي البروتوتايب',H:'The membrane is a barrier, like the prototype',
+ c:`Cell membrane = selectively permeable: بتعدّي حاجات وتمنع حاجات. Diffusion: الجزيئات بتتحرك من تركيز عالي لتركيز واطي. Osmosis: حركة الميّة عبر membrane selectively permeable.`,
+ C:`The cell membrane is selectively permeable: it lets some things through and blocks others. Diffusion: molecules move from high to low concentration. Osmosis: movement of water across a selectively permeable membrane.`,
+ l:`البروتوتايب كمان حاجز بيتحكم في انتقال المادة أو الطاقة.`,
+ L:`The prototype is also a barrier that controls the transfer of matter or energy.`,
+ e:`لو اخترنا water insulation نقارن بلاستيك وقماش وكرتون: مين بيعدّي ميّة أقل. نقيس كتلة الميّة قبل وبعد الاختبار. Water loss % = lost ÷ initial × 100. فقد 10 g من 100 g يعني 10%.`,
+ E:`If we pick water insulation, we compare plastic, fabric and cardboard: which lets less water through. We measure the water's mass before and after the test. Water loss % = lost ÷ initial × 100. Losing 10 g out of 100 g means 10%.`,
+ x:`نسبة فقد أقل تعني حماية أحسن، بشرط إن كل العينات اتختبرت بنفس الظروف. وخامات العزل العادية مش شغالة زي الـ membranes أو الـ protein channels. وانتقال الحرارة مش نفس الـ diffusion.`,
+ X:`A lower loss percentage means better protection, provided all samples were tested under the same conditions. Ordinary insulating materials don't work like membranes or protein channels. And heat transfer isn't the same as diffusion.`},
+{id:'bio4',s:'Biology',lo:4,t:'DNA & RNA',g:0,
+ h:'العينة الوراثية حساسة للظروف',H:'Genetic samples are sensitive to conditions',
+ c:`Genetics: تخزين المعلومة الوراثية ونقلها. DNA و RNA = nucleic acids من nucleotides. DNA خيطين مكمّلين (double helix) و4 قواعد: A, T, C, G، والأزواج A–T و C–G. RNA غالبًا خيط واحد ومكان T فيه U (uracil). الاتنين عندهم sugar-phosphate backbone.`,
+ C:`Genetics: storing and passing on genetic information. DNA and RNA are nucleic acids made of nucleotides. DNA has two complementary strands (double helix) and 4 bases: A, T, C, G, pairing A–T and C–G. RNA is usually single-stranded and has U (uracil) in place of T. Both have a sugar-phosphate backbone.`,
+ l:`المواد البيولوجية محتاجة ظروف مستقرة. الحرارة العالية وبعض العوامل البيئية ممكن تبوّظ العينات وتأثر على المادة الوراثية.`,
+ L:`Biological materials need stable conditions. High heat and some environmental factors can damage samples and affect genetic material.`,
+ e:`البروتوتايب ممكن يخلّي الظروف جوّه الحاوية أثبت لأنه يقلل heat transfer. نقارن حرارة حاوية معزولة بحاوية غير معزولة عشان نقيّم الأداء.`,
+ E:`The prototype can make conditions inside the container more stable because it reduces heat transfer. We compare an insulated container's temperature with a non-insulated one to evaluate performance.`,
+ x:`العزل مش بيحمي DNA مباشرة ولا بيصلّحه. بس فهم تخزين المعلومة بيوضّح ليه التحكم في الظروف مهم.`,
+ X:`Insulation doesn't protect DNA directly or repair it. But understanding how information is stored shows why controlling conditions matters.`},
+
+{id:'geo1',s:'Geology',lo:1,t:'Earth materials & engineering',g:1,
+ h:'الخامة المناسبة تعني نجاح البروتوتايب',H:'The right material means a successful prototype',
+ c:`Geology بتدرس الـ Earth materials والعمليات اللي بتشكّل الكوكب. بتربط chemistry (تركيب المعادن) و physics (الحرارة والطاقة) و engineering (اختيار مواد البناء).`,
+ C:`Geology studies Earth materials and the processes that shape the planet. It links chemistry (mineral composition), physics (heat and energy) and engineering (choosing building materials).`,
+ l:`نجاح البروتوتايب بيعتمد على اختيار خامات مناسبة وفهم سلوكها.`,
+ L:`The prototype's success depends on choosing suitable materials and understanding how they behave.`,
+ e:`نعيد استخدام كرتون أو قماش أو فلين (cork) أو تغليف بلاستيك لبناء حاوية عزل حراري، وندرس خواصها ونختبر قد إيه بتقلل heat transfer. الحجر والطين أمثلة على مواد طبيعية في البناء.`,
+ E:`We reuse cardboard, fabric, cork or plastic packaging to build a thermally insulating container, study their properties and test how much each reduces heat transfer. Stone and clay are examples of natural building materials.`,
+ x:`الخامة الطبيعية مش دايمًا أحسن من المصنّعة. بنقارن بالأداء والكتلة والتكلفة والأمان والأثر البيئي. وإعادة استخدام خامة مناسبة بتقلل الـ waste.`,
+ X:`Natural materials aren't always better than manufactured ones. We compare by performance, mass, cost, safety and environmental impact. And reusing a suitable material reduces waste.`},
+{id:'geo2',s:'Geology',lo:2,t:'Minerals',g:1,
+ h:'الفلين وفراغات الهوا',H:'Cork and air pockets',
+ c:`Minerals: مواد أرضية صلبة طبيعية بتركيب وبنية محددين. بنتعرف عليها بـ hardness و color و streak و cleavage و fracture و magnetism.`,
+ C:`Minerals: naturally occurring solid Earth materials with a defined composition and structure. We identify them by hardness, color, streak, cleavage, fracture and magnetism.`,
+ l:`المهندس لازم يحدد الخامات ويقارنها قبل ما يختار واحدة للتصميم.`,
+ L:`An engineer must identify and compare materials before choosing one for the design.`,
+ e:`الفلين (cork) ممكن يكون عازل لأن بنيته فيها فراغات هوا صغيرة كتير. الحجر قوي ومتين، بس سلوكه الحراري ممكن يخليه أقل مناسبة لبعض تصميمات العزل. نقارن cork بكرتون أو قماش معاد بقياس تغيّر الحرارة في حاويات متطابقة.`,
+ E:`Cork can insulate well because its structure has many tiny air pockets. Stone is strong and durable, but its thermal behavior may make it less suitable for some insulation designs. We compare cork with reused cardboard or fabric by measuring temperature change in identical containers.`,
+ x:`تحديد المعادن نفسه مش مطلوب في التحدي، المهم فهم خواص الخامة. ولو هنستخدم cork لازم يكون متاح كخامة نضيفة معاد استخدامها.`,
+ X:`Identifying minerals itself isn't required in the challenge; what matters is understanding material properties. And if we use cork, it must be available as a clean, reused material.`},
+{id:'geo3',s:'Geology',lo:3,t:'Engineering properties',g:1,
+ h:'الأقوى مش دايمًا الأنسب',H:"The strongest isn't always the most suitable",
+ c:`الخامات الطبيعية والمصنّعة ليها engineering properties: strength و hardness و flexibility و density وسلوكها تحت الضغط (behavior under stress). الخواص دي بتحدد الخامة تنفع لهيكل معيّن ولا لأ.`,
+ C:`Natural and manufactured materials have engineering properties: strength, hardness, flexibility, density and behavior under stress. These properties decide whether a material suits a given structure.`,
+ l:`لازم نختار خامات تقلل انتقال heat أو sound أو light أو water، وفي نفس الوقت يفضل البروتوتايب ضمن حدود الحجم والكتلة.`,
+ L:`We must choose materials that reduce the transfer of heat, sound, light or water, while keeping the prototype within the size and mass limits.`,
+ e:`لوح الكرتون خفيف وسهل إعادة استخدامه بس بينحني تحت حِمل تقيل. البلاستيك ممكن يقاوم الميّة بس مش بيعزل حراريًا زي خامة متعددة الطبقات. والكرتون المطوي أو الحاجز المتعدد الطبقات أصلب (stiffness) من لوح مسطح.`,
+ E:`Cardboard sheet is light and easy to reuse but bends under a heavy load. Plastic may resist water but doesn't insulate heat as well as a multi-layer material. Folded cardboard or a multi-layer barrier is stiffer than a flat sheet.`,
+ x:`أحسن خامة مش الأقوى. هي اللي تعمل الوظيفة المطلوبة بأمان وكفاءة وبأقل كمية عملية من الخامة.`,
+ X:`The best material isn't the strongest one. It's the one that does the required job safely and efficiently, using the least practical amount of material.`},
+{id:'geo4',s:'Geology',lo:4,t:'Igneous rocks',g:1,
+ h:'Pumice والمسام والـ density',H:'Pumice, pores and density',
+ c:`Igneous rocks: بتتكوّن لما magma أو lava تبرد وتتصلب. Intrusive: بتبرد ببطء تحت الأرض فتطلع بلورات كبيرة. Extrusive: بتبرد بسرعة عند السطح فتطلع بلورات أصغر. سرعة التبريد بتحدد الـ texture.`,
+ C:`Igneous rocks form when magma or lava cools and solidifies. Intrusive: cools slowly underground, giving large crystals. Extrusive: cools quickly at the surface, giving smaller crystals. Cooling speed determines the texture.`,
+ l:`تكوّن الخامة وبنيتها بيأثروا على خواصها الهندسية.`,
+ L:`How a material formed and its structure affect its engineering properties.`,
+ e:`Pumice صخر بركاني فيه ثقوب صغيرة كتير، فهو خفيف وممكن يكون عازل طبيعي. Density = mass ÷ volume. كتلة 60 g وحجم 100 cm³ يعني density = 0.6 g/cm³.`,
+ E:`Pumice is a volcanic rock full of tiny holes, so it's light and can be a natural insulator. Density = mass ÷ volume. A mass of 60 g and a volume of 100 cm³ gives density = 0.6 g/cm³.`,
+ x:`لازم نختبر الأداء الفعلي. مش كل خامة مسامية عازل كويس.`,
+ X:`We must test real performance. Not every porous material is a good insulator.`},
+
+{id:'math1',s:'Math',lo:1,t:'Trigonometry',g:2,
+ h:'زاوية اللوح وارتفاعه',H:'Panel angle and height',
+ c:`Trigonometry: زوايا ومسافات وأشكال. الـ unit circle بيربط الزاوية بالـ sine و cosine، و sine/cosine laws بتحسب أضلاع وزوايا مجهولة. في المثلث القائم: sin θ = opposite ÷ hypotenuse.`,
+ C:`Trigonometry: angles, distances and shapes. The unit circle links an angle to sine and cosine, and the sine/cosine laws find unknown sides and angles. In a right triangle: sin θ = opposite ÷ hypotenuse.`,
+ l:`بنصمم ألواح مائلة ودعامات مثلثة ودروع بزاوية لشكل البروتوتايب.`,
+ L:`We design inclined panels, triangular supports and angled shields for the prototype's shape.`,
+ e:`درع ضوء لوحه طوله 20 cm ومائل 30°: h = 20 sin 30° = 20 × 0.5 = 10 cm. وزوايا الارتفاع والانخفاض (elevation / depression) بتوضح اتجاه الضوء الداخل.`,
+ E:`A light shield with a 20 cm panel tilted at 30°: h = 20 sin 30° = 20 × 0.5 = 10 cm. Angles of elevation / depression show the direction of the incoming light.`,
+ x:`اختار أبسط زاوية مناسبة. والشكل النهائي لازم يفضل ضمن حدود الحجم والكتلة، وأداؤه يتختبر تجريبيًا.`,
+ X:`Choose the simplest suitable angle. The final shape must stay within the size and mass limits, and its performance must be tested experimentally.`},
+{id:'math2',s:'Math',lo:2,t:'Statistics',g:3,
+ h:'Mean و range لمقارنة العزل',H:'Mean and range to compare insulation',
+ c:`نسجل القياسات في جداول ونعرضها بـ histograms أو dot plots أو stem plots أو boxplots أو scatter plots. Mean و range و IQR و standard deviation بتوصف النتايج وتشتتها.`,
+ C:`We record measurements in tables and display them with histograms, dot plots, stem plots, boxplots or scatter plots. Mean, range, IQR and standard deviation describe the results and their spread.`,
+ l:`بنقارن خامات العزل ونقرر أي تصميم أداؤه أحسن بالأرقام.`,
+ L:`We compare insulation materials and decide which design performs better using numbers.`,
+ e:`3 اختبارات لخامة نزّلت الحرارة 4 و5 و6 °C: mean = (4+5+6) ÷ 3 = 5 °C و range = 6 − 4 = 2 °C. وفي scatter plot الوقت هو independent variable والحرارة هي المتغير المقاس، و regression line بتقدّر الاتجاه.`,
+ E:`3 tests of one material dropped the temperature by 4, 5 and 6 °C: mean = (4+5+6) ÷ 3 = 5 °C and range = 6 − 4 = 2 °C. In a scatter plot, time is the independent variable and temperature is the measured variable, and a regression line estimates the trend.`,
+ x:`range أصغر ممكن يدل على نتايج أثبت، بس 3 قياسات مش كفاية لإثبات الـ reliability. و correlation مش بتثبت causation.`,
+ X:`A smaller range may indicate more consistent results, but 3 measurements aren't enough to prove reliability. And correlation doesn't prove causation.`},
+{id:'math3',s:'Math',lo:3,t:'Geometry',g:2,
+ h:'الحجم 3000 cm³',H:'Volume of 3000 cm³',
+ c:`2D: طول وعرض. 3D: طول وعرض وارتفاع. Cross section: شكل 2D بيظهر لما مستوى يقطع جسم 3D. Regular polyhedra: مجسمات أوجهها مضلعات مسطحة وأحرفها وزواياها متساوية.`,
+ C:`2D: length and width. 3D: length, width and height. Cross section: the 2D shape that appears when a plane cuts a 3D solid. Regular polyhedra: solids whose faces are flat polygons with equal edges and angles.`,
+ l:`محتاجين نختار شكل مناسب للبروتوتايب، ففهم العلاقة بين 2D و 3D مهم.`,
+ L:`We need to pick a suitable shape for the prototype, so understanding the relationship between 2D and 3D matters.`,
+ e:`صندوق مستطيل مبني من مستطيلات 2D. الأبعاد 20 × 15 × 10 cm، فـ Volume = L × W × H = 3000 cm³. نقارن مجسمات 3D مختلفة عشان نختار التصميم اللي بيستخدم الخامة بكفاءة ويدّي مساحة داخلية كفاية.`,
+ E:`A rectangular box is built from 2D rectangles. With dimensions 20 × 15 × 10 cm, Volume = L × W × H = 3000 cm³. We compare different 3D solids to choose the design that uses material efficiently and gives enough interior space.`},
+{id:'mech1',s:'Mechanics',lo:1,t:'Motion graphs',g:3,
+ h:'Graph الحرارة مع الوقت',H:'Temperature–time graph',
+ c:`Mechanics: position و velocity و acceleration. ميل (slope) الـ position-time graph = velocity، وميل الـ velocity-time graph = acceleration. Average velocity = displacement ÷ time، و instantaneous velocity هي السرعة في لحظة معيّنة.`,
+ C:`Mechanics: position, velocity and acceleration. The slope of a position–time graph = velocity, and the slope of a velocity–time graph = acceleration. Average velocity = displacement ÷ time, and instantaneous velocity is the velocity at one specific moment.`,
+ l:`الربط غير مباشر: بنستخدم الرسوم البيانية عشان نسجل التغيّر أثناء الاختبار.`,
+ L:`The link is indirect: we use graphs to record change during testing.`,
+ e:`نرسم temperature مقابل time عشان نقارن بتبرد قد إيه حاويات مختلفة. ده temperature-time graph مش position-time، بس نفس فكرة دراسة متغير بيتغير مع الوقت.`,
+ E:`We plot temperature against time to compare how fast different containers cool. This is a temperature–time graph, not position–time, but the idea is the same: studying a variable that changes with time.`,
+ x:`البروتوتايب نفسه مفروض ميحتاجش حركة بمحرك. أهم استخدام هو جمع بيانات مع الوقت ومقارنة أداء التصميمات.`,
+ X:`The prototype itself shouldn't need motor-driven motion. The main use is collecting data over time and comparing the designs' performance.`},
+{id:'mech2',s:'Mechanics',lo:2,t:'Kinematics & free fall',g:2,
+ h:'ثبات التجربة مش حركتها',H:'Experiment stability, not motion',
+ c:`المساحة تحت الـ velocity-time graph = displacement. مع acceleration ثابتة: v = u + at (u السرعة الابتدائية). Free fall: الجاذبية هي القوة الأساسية المؤثرة.`,
+ C:`The area under a velocity–time graph = displacement. With constant acceleration: v = u + at (u is the initial velocity). Free fall: gravity is the main force acting.`,
+ l:`مش محوري للتحدي لأن البروتوتايب شغال من غير حركة بمحرك، بس بيفيد لو جزء اتحرك أثناء التجربة.`,
+ L:`Not central to the challenge since the prototype works without motor-driven motion, but useful if a part moves during the experiment.`,
+ e:`جسم بدأ من السكون وتسارعه 2 m/s² لمدة 3 s: v = 0 + 2 × 3 = 6 m/s. وبنحط البروتوتايب على سطح ثابت ومنسيبوش يقع، لأن الصدمة ممكن تبوّظ بنيته وتأثر على الاختبار.`,
+ E:`An object starts from rest with an acceleration of 2 m/s² for 3 s: v = 0 + 2 × 3 = 6 m/s. We place the prototype on a stable surface and don't let it fall, because an impact could damage its structure and affect the test.`,
+ x:`الربط محدود. الميكانيكا بتفيد في فهم الحركة والثبات التجريبي، والهدف الأساسي هو التحكم في انتقال الطاقة أو المادة بخواص الخامة والشكل.`,
+ X:`The link is limited. Mechanics helps with understanding motion and experimental stability; the main goal is controlling the transfer of energy or matter through material properties and shape.`},
+
+{id:'chem1',s:'Chemistry',lo:1,t:'Scientific method & density',g:3,
+ h:'ΔT والمتغيرات الثابتة',H:'ΔT and controlled variables',
+ c:`Scientific method: مشكلة، بعدين hypothesis، بعدين تصميم تجربة. independent variable (زي خامة العزل) و dependent variable (زي تغيّر الحرارة). الباقي لازم يفضل ثابت: درجة البداية وحجم الحاوية ووقت الاختبار. بنستخدم SI units وأجهزة دقيقة وقياسات متكررة.`,
+ C:`Scientific method: problem, then hypothesis, then experiment design. Independent variable (e.g. insulation material) and dependent variable (e.g. temperature change). Everything else must stay constant: starting temperature, container size and test time. We use SI units, accurate instruments and repeated measurements.`,
+ l:`ده الإطار اللي بنصمم ونختبر ونحسّن بيه البروتوتايب.`,
+ L:`This is the framework we use to design, test and improve the prototype.`,
+ e:`نقارن كرتون وقماش معاد و bubble wrap في حاويات منفصلة. من 60°C إلى 45°C بعد 20 دقيقة: ΔT = 60 − 45 = 15°C. لو حاوية تانية نزلت 8°C بس بنفس الظروف، يبقى عزلها أحسن. وρ = m ÷ V: 120 g ÷ 200 cm³ = 0.6 g/cm³.`,
+ E:`We compare cardboard, reused fabric and bubble wrap in separate containers. From 60°C to 45°C after 20 minutes: ΔT = 60 − 45 = 15°C. If another container dropped only 8°C under the same conditions, its insulation is better. And ρ = m ÷ V: 120 g ÷ 200 cm³ = 0.6 g/cm³.`,
+ x:`density واطية لوحدها مش دليل إن الخامة عازل كويس. القرار النهائي بنتايج الاختبار والأمان والتكلفة واستخدام الخامة.`,
+ X:`Low density alone isn't proof that a material insulates well. The final decision rests on test results, safety, cost and how the material is used.`},
+{id:'chem2',s:'Chemistry',lo:2,t:'Atoms & radiation',g:0,
+ h:'خامات مختلفة، طاقات مختلفة',H:'Different materials, different energies',
+ c:`Atoms فيها protons و neutrons و electrons. عدد الـ protons هو اللي بيحدد العنصر. Isotopes: نفس العنصر بعدد neutrons مختلف. Isobars: نفس mass number وatomic numbers مختلفة. Isotones: نفس عدد neutrons. الإشعاع النووي: alpha و beta و gamma، وبيختلفوا في قدرتهم على اختراق المواد.`,
+ C:`Atoms contain protons, neutrons and electrons. The number of protons defines the element. Isotopes: same element, different number of neutrons. Isobars: same mass number, different atomic numbers. Isotones: same number of neutrons. Nuclear radiation: alpha, beta and gamma, which differ in how well they penetrate materials.`,
+ l:`الاتنين عن تفاعل المادة مع حاجة بتعدّي خلالها. والتحدي ممكن يحتاج خامة تقلل نفاذ الضوء أو الصوت أو الحرارة أو الميّة.`,
+ L:`Both are about matter interacting with something passing through it. And the challenge may need a material that reduces the passage of light, sound, heat or water.`,
+ e:`الفكرة العامة: الخامات المختلفة بتتفاعل بشكل مختلف مع أشكال الطاقة المختلفة، فنختبر الخامة اللي اخترناها بطرق آمنة ومعتمدة من المدرسة.`,
+ E:`The general idea: different materials interact differently with different forms of energy, so we test our chosen material using safe, school-approved methods.`,
+ x:`حجب الضوء أو الحرارة مش نفس الحماية من الإشعاع النووي. Gamma rays محتاجة تدريع متخصص وإجراءات أمان، ومينفعش نستخدم مصادر نووية في البروتوتايب.`,
+ X:`Blocking light or heat isn't the same as protecting against nuclear radiation. Gamma rays need specialized shielding and safety procedures, and we must never use nuclear sources in the prototype.`},
+{id:'chem3',s:'Chemistry',lo:3,t:'Electrons & EM spectrum',g:0,
+ h:'Light-shielding و c = fλ',H:'Light-shielding and c = fλ',
+ c:`الإلكترون لما يمتص طاقة بيطلع لمستوى طاقة أعلى، ولما يرجع لمستوى أقل بيطلّق طاقة. الـ electromagnetic spectrum: radio و microwaves و infrared و visible light و ultraviolet و X-rays و gamma. والعلاقة: c = fλ.`,
+ C:`When an electron absorbs energy it jumps to a higher energy level, and when it drops to a lower level it releases energy. The electromagnetic spectrum: radio, microwaves, infrared, visible light, ultraviolet, X-rays and gamma. The relation: c = fλ.`,
+ l:`الموضوع ده مرتبط مباشرة بمسار light-shielding في التحدي.`,
+ L:`This topic connects directly to the light-shielding track of the challenge.`,
+ e:`نختبر هل خامات معاد استخدامها بتقلل الضوء المرئي اللي بيعدّي: كرتون ممكن يحجب ضوء أكتر من بلاستيك شفاف رفيع. ونجرب شكل الدرع (overlapping panel أو louver). و light meter معتمد من المدرسة بيقارن الضوء قبل وبعد الحاجز. λ = 600 nm = 6×10⁻⁷ m يطلع f = 3×10⁸ ÷ 6×10⁻⁷ = 5×10¹⁴ Hz.`,
+ E:`We test whether reused materials reduce the visible light that passes: cardboard may block more light than thin clear plastic. We try shield shapes (overlapping panel or louver). A school-approved light meter compares light before and after the barrier. λ = 600 nm = 6×10⁻⁷ m gives f = 3×10⁸ ÷ 6×10⁻⁷ = 5×10¹⁴ Hz.`,
+ x:`الـ photoelectric effect و flame tests أمثلة على تفاعل الضوء مع المادة، بس مش لازمين لبناء البروتوتايب.`,
+ X:`The photoelectric effect and flame tests are examples of light interacting with matter, but they aren't needed to build the prototype.`},
+{id:'chem4',s:'Chemistry',lo:4,t:'Periodic table',g:1,
+ h:'المعدن بيوصّل حرارة',H:'Metals conduct heat',
+ c:`الـ periodic table مرتب بالـ atomic number والـ electronic configuration. نفس الـ group يعني نفس عدد valence electrons وبالتالي خواص كيميائية متشابهة. Periodic trends: atomic radius و ionization energy و electronegativity و electron affinity. وبيفسّر ليه metals و nonmetals و metalloids مختلفين.`,
+ C:`The periodic table is ordered by atomic number and electronic configuration. The same group means the same number of valence electrons and therefore similar chemical properties. Periodic trends: atomic radius, ionization energy, electronegativity and electron affinity. It explains why metals, nonmetals and metalloids differ.`,
+ l:`اختيار الخامة محتاج فهم خواصها وتفاعلها مع اللي حواليها.`,
+ L:`Choosing a material requires understanding its properties and how it reacts with its surroundings.`,
+ e:`الفلزات غالبًا موصّلات حرارة كويسة، وكتير من اللافلزات زي الخشب وبعض البلاستيك بتتستخدم للعزل. فنتجنب كمية كبيرة من معدن مكشوف في حاوية عزل حراري، ونجرب كرتون أو قماش أو تغليف بلاستيك معاد استخدامه.`,
+ E:`Metals are generally good heat conductors, and many nonmetals such as wood and some plastics are used for insulation. So we avoid a large amount of exposed metal in a thermal insulation container and try reused cardboard, fabric or plastic packaging.`,
+ x:`الـ periodic table بيفسّر الأسباب الذرية ورا خواص الخامات، لكن القرار الهندسي بيتبني على الاختبار.`,
+ X:`The periodic table explains the atomic reasons behind material properties, but the engineering decision is based on testing.`},
+
+{id:'phys1',s:'Physics',lo:1,t:'Measurement',g:3,
+ h:'SI و accuracy و precision',H:'SI, accuracy and precision',
+ c:`SI units: كتلة بالـ kg وطول بالـ m وزمن بالـ s وحرارة بالـ °C. Accuracy: قرب القياس من القيمة الحقيقية. Precision: قرب القياسات المتكررة من بعضها. أخطاء القياس بتأثر على الاستنتاج. و dimensional analysis بيراجع الحسابات.`,
+ C:`SI units: mass in kg, length in m, time in s, temperature in °C. Accuracy: how close a measurement is to the true value. Precision: how close repeated measurements are to each other. Measurement errors affect the conclusion. Dimensional analysis checks calculations.`,
+ l:`ده اللي بيخلي اختبار البروتوتايب علمي.`,
+ L:`This is what makes testing the prototype scientific.`,
+ e:`نقيس الحرارة جوّه حاوية معزولة كل 5 دقايق لمدة 20 دقيقة. من 50°C إلى 42°C: ΔT = 42 − 50 = −8°C، والسالب معناه إن الحرارة نزلت. نقارن بحاوية غير معزولة بنفس الظروف. والسرعة بالـ m/s لأن v = distance (m) ÷ time (s).`,
+ E:`We measure the temperature inside an insulated container every 5 minutes for 20 minutes. From 50°C to 42°C: ΔT = 42 − 50 = −8°C; the negative sign means the temperature dropped. We compare with a non-insulated container under the same conditions. Speed is in m/s because v = distance (m) ÷ time (s).`,
+ x:`استخدم أدوات مناسبة وكرّر كل اختبار بنفس الظروف.`,
+ X:`Use suitable instruments and repeat every test under the same conditions.`},
+{id:'phys2',s:'Physics',lo:2,t:"Equilibrium & Newton's 3rd law",g:2,
+ h:'N = mg والثبات',H:'N = mg and stability',
+ c:`Static equilibrium: الجسم ساكن و net force = 0. Dynamic equilibrium: سرعة ثابتة و net force = 0. Newton's 3rd law: لو جسم أثّر بقوة على تاني، التاني بيأثر بقوة مساوية ومعاكسة.`,
+ C:`Static equilibrium: the object is at rest and net force = 0. Dynamic equilibrium: constant velocity and net force = 0. Newton's 3rd law: if one object exerts a force on another, the other exerts an equal and opposite force.`,
+ l:`البروتوتايب لازم يحافظ على شكله ويفضل ثابت أثناء الاختبار.`,
+ L:`The prototype must keep its shape and stay stable during testing.`,
+ e:`حاوية بقاعدة عريضة أثبت من حاوية بقاعدة ضيقة. واللوح متعدد الطبقات لازم يشيل وزنه من غير ما ينحني أو يتفكك. بنستخدم free-body diagram عشان نحدد القوى (الجاذبية و support force من الترابيزة). على ترابيزة أفقية والجسم ساكن: F_net = N − mg = 0 يعني N = mg. كتلة 0.5 kg و g = 9.8 m/s² يطلع N = 4.9 N.`,
+ E:`A container with a wide base is more stable than one with a narrow base. A multi-layer panel must carry its own weight without bending or falling apart. We use a free-body diagram to identify the forces (gravity and the support force from the table). On a horizontal table with the object at rest: F_net = N − mg = 0, so N = mg. A mass of 0.5 kg and g = 9.8 m/s² gives N = 4.9 N.`,
+ x:`ده بيفيد في الثبات الإنشائي، لكن التحدي كمان بيطلب إننا نختبر وظيفة العزل نفسها.`,
+ X:`This helps with structural stability, but the challenge also requires us to test the insulation function itself.`},
+{id:'phys3',s:'Physics',lo:3,t:"Newton's laws",g:2,
+ h:'Balanced forces',H:'Balanced forces',
+ c:`لو net force = 0 حركة الجسم متتغيرش. ولو مش صفر الجسم بيتسارع حسب F = ma. القوة vector لأن ليها مقدار واتجاه.`,
+ C:`If net force = 0, the object's motion doesn't change. If it isn't zero, the object accelerates according to F = ma. Force is a vector because it has magnitude and direction.`,
+ l:`الهيكل لازم يفضل ثابت وميتحركش أو يتشوه بسهولة أثناء العرض.`,
+ L:`The structure must stay stable and not move or deform easily during the presentation.`,
+ e:`الحاجز متعدد الطبقات لازم يفضل في مكانه وإحنا بنقيس كمية heat أو sound أو light أو water اللي بتعدّي منه. وبنستخدم فكرة الـ system عشان ندرس تفاعل الحاوية ومحتوياتها والبيئة المحيطة.`,
+ E:`The multi-layer barrier must stay in place while we measure how much heat, sound, light or water passes through it. We use the idea of a system to study how the container, its contents and the surroundings interact.`,
+ x:`التحدي أساسًا عن عزل passive مش عن الحركة. Centripetal force مش مطلوبة إلا لو درسنا نظام دوّار منفصل. الأهم هنا: balanced forces وثبات الخامة وانتقال الطاقة عبر الحاجز.`,
+ X:`The challenge is mainly about passive insulation, not motion. Centripetal force isn't needed unless we study a separate rotating system. What matters here: balanced forces, material stability and energy transfer through the barrier.`},
+{id:'phys4',s:'Physics',lo:4,t:'Gravity, mass & weight',g:2,
+ h:'5 kg تساوي تقريبًا 49 N',H:'5 kg is about 49 N',
+ c:`Gravity قوة جذب بين الأجسام اللي ليها كتلة، وبتعتمد على الكتلتين والمسافة بين مركزيهما (Universal Law of Gravitation). Mass: كمية المادة وبتفضل ثابتة. Weight: قوة الجاذبية على الجسم وبتتغير حسب المجال. وفي Free fall وفي apparent weight.`,
+ C:`Gravity is an attractive force between objects with mass; it depends on both masses and the distance between their centers (Universal Law of Gravitation). Mass: the amount of matter, which stays constant. Weight: the gravitational force on the object, which changes with the field. There are also free fall and apparent weight.`,
+ l:`البروتوتايب مينفعش تزيد كتلته عن 5 kg.`,
+ L:`The prototype's mass must not exceed 5 kg.`,
+ e:`كتلة 5 kg على الأرض يبقى وزنها تقريبًا 49 N. بناخد الكتلة والوزن في الاعتبار عشان الهيكل يبقى سهل الحمل وثابت أثناء الاختبار.`,
+ E:`A 5 kg mass on Earth weighs about 49 N. We take mass and weight into account so the structure is easy to carry and stable during testing.`,
+ x:`الجاذبية كمان بتأثر على إزاي الخامات بتتدعم في الهيكل، فلازم نختار شكل وخامات قوية كفاية.`,
+ X:`Gravity also affects how materials are supported in the structure, so we must choose a shape and materials that are strong enough.`},
+
+{id:'cs1',s:'CS',lo:1,t:'ICT',g:4,
+ h:'بحث وجداول رقمية',H:'Research and digital tables',
+ c:`ICT بيساعد الناس تجمع وتنظّم وتنشئ وتشارك المعلومات بأدوات رقمية وإنترنت.`,
+ C:`ICT helps people collect, organize, create and share information using digital tools and the internet.`,
+ l:`في الـ Capstone Challenge بنستخدم ICT عشان نبحث عن خامات العزل ونقارن خواصها ونجمع أدلة علمية قبل ما نختار التصميم.`,
+ L:`In the Capstone Challenge we use ICT to research insulation materials, compare their properties and gather scientific evidence before choosing the design.`,
+ e:`جدول رقمي بيقارن كرتون وقماش وبلاستيك بالكتلة والتكلفة وتقليل heat transfer. ومستندات أونلاين لتسجيل التجارب والحسابات وتحسينات التصميم، ومشاركة النتايج مع الفريق والمدرسين. وبحث عن طرق إعادة استخدام الخامات وتقليل الـ waste.`,
+ E:`A spreadsheet comparing cardboard, fabric and plastic by mass, cost and heat-transfer reduction. Online documents to record experiments, calculations and design improvements, and to share results with the team and teachers. And research on ways to reuse materials and reduce waste.`},
+{id:'cs2',s:'CS',lo:2,t:'OS & file management',g:4,
+ h:'فولدرات و backup',H:'Folders and backups',
+ c:`الـ operating system بيدير الـ hardware والـ software ويسمح لك تشغّل برامج وتنظّم ملفات. File management: إنشاء فولدرات ونسخ ونقل وحذف وبحث و compression.`,
+ C:`The operating system manages hardware and software and lets you run programs and organize files. File management: creating folders, copying, moving, deleting, searching and compression.`,
+ l:`محتاجين ننظّم كل المعلومات المتعلقة بالمشروع.`,
+ L:`We need to organize all the information related to the project.`,
+ e:`فولدرات منفصلة للـ research وخواص الخامات والبيانات التجريبية والحسابات وصور البروتوتايب والعرض النهائي. القياسات في spreadsheet والتقارير في ملفات document. Compression بيسهّل مشاركة الملفات الكبيرة، و backups منتظمة بتحمي الشغل، وأسماء ملفات واضحة وتنظيم لنسخ التصميم.`,
+ E:`Separate folders for research, material properties, experimental data, calculations, prototype photos and the final presentation. Measurements in a spreadsheet and reports in document files. Compression makes sharing large files easier, regular backups protect the work, and clear file names keep design versions organized.`,
+ x:`التنظيم الكويس بيوفر وقت وبيدعم الشغل الجماعي وبيوثّق كل مرحلة من Engineering Design Process في الـ Capstone Portfolio.`,
+ X:`Good organization saves time, supports teamwork and documents every stage of the Engineering Design Process in the Capstone Portfolio.`,xl:1},
+{id:'cs3',s:'CS',lo:3,t:'Word processing',g:4,
+ h:'تقرير الـ Portfolio',H:'The Portfolio report',
+ c:`برامج الـ word-processing بتسمح تنشئ وتعدّل وتنسّق وتحفظ وتطبع مستندات احترافية، وبتنظّم المعلومات بـ headings و paragraphs و tables و images و page layouts.`,
+ C:`Word-processing programs let you create, edit, format, save and print professional documents, organizing information with headings, paragraphs, tables, images and page layouts.`,
+ l:`بنستخدمها عشان نجهّز الـ Capstone Portfolio ونوثّق الـ Engineering Design Process.`,
+ L:`We use them to prepare the Capstone Portfolio and document the Engineering Design Process.`,
+ e:`تقرير بيشرح المشكلة والـ hypothesis والخامات المختارة وأسباب اختيارها. جداول مقارنة بين الخامات وصور للبروتوتايب قبل وبعد التحسين، مع النتايج والحسابات اللي بتدعم الاستنتاج. وبنراجع الـ spelling ونحفظ بانتظام ونكتب labels واضحة للصور والجداول.`,
+ E:`A report explaining the problem, the hypothesis, the chosen materials and why we chose them. Comparison tables between materials and photos of the prototype before and after improvement, with the results and calculations that support the conclusion. We check spelling, save regularly and write clear labels for images and tables.`,
+ x:`المستند المنظّم بيساعد المدرسين يفهموا قراراتنا وبيدّي دليل على إزاي اختبرنا وحسّنا البروتوتايب.`,
+ X:`An organized document helps teachers understand our decisions and gives evidence of how we tested and improved the prototype.`,xl:1},
+{id:'cs4',s:'CS',lo:4,t:'Presentation software',g:4,
+ h:'Slides و bar chart',H:'Slides and a bar chart',
+ c:`Presentation software بينظّم المعلومات في slides ويوصّل الأفكار بنص وصور وجداول و charts. العرض الكويس له بنية واضحة و layouts مناسبة ونص مقروء ومعلومة بصرية مرتبطة بالموضوع.`,
+ C:`Presentation software organizes information into slides and communicates ideas with text, images, tables and charts. A good presentation has a clear structure, suitable layouts, readable text and visuals related to the topic.`,
+ l:`بنستخدمه عشان نشرح المشكلة وقرارات التصميم والتجارب والنتايج والتحسينات النهائية.`,
+ L:`We use it to explain the problem, design decisions, experiments, results and final improvements.`,
+ e:`slide بتقارن تصميمين عزل، وbar chart بيوضّح تغيّر حرارة كل واحد في نفس مدة الاختبار. وصور للبروتوتايب مع شرح ليه اخترنا خامات وأشكال معيّنة.`,
+ E:`A slide comparing two insulation designs, and a bar chart showing each one's temperature change over the same test duration. And prototype photos with an explanation of why we chose certain materials and shapes.`,
+ x:`نقاط قصيرة وصور واضحة أحسن من نص كتير.`,
+ X:`Short points and clear images beat a lot of text.`},
+{id:'eng',s:'English',lo:0,t:'English for the project',g:4,
+ h:'كل المشروع بالإنجليزي',H:'The whole project in English',
+ c:`English أكتر لغة ثانية انتشارًا في العالم، ولغة معظم المجالات العلمية والدبلوماسية.`,
+ C:`English is the most widely spoken second language in the world, and the language of most scientific and diplomatic fields.`,
+ l:`معظم البحث بيتم بمصادر إنجليزي، ومطلوب نكتب ونشرح المشروع كله بالإنجليزي: الـ portfolio والـ poster وحتى الـ idea proposal.`,
+ L:`Most research uses English sources, and we must write and explain the whole project in English: the portfolio, the poster and even the idea proposal.`,
+ e:`الإيجابيات: تعلّم لغة جديدة وعلاقات عالمية. السلبيات: الاختلاف بين الإنجليزي والعربي وقلة الخبرة باللغة.`,
+ E:`Pros: learning a new language and global connections. Cons: the differences between English and Arabic, and limited experience with the language.`,
+ x:`إتقانها تحدي، لكنها بتفتح فرص: وصول لمصادر علمية عالمية وتعاون دولي وتوصيل الابتكارات بفعالية.`,
+ X:`Mastering it is a challenge, but it opens opportunities: access to global scientific sources, international collaboration and communicating innovations effectively.`,xl:1}
+];
+
+/* ---- language ---- */
+var LANG='ar';
+try{LANG=localStorage.getItem('kfs-j2-lang')||'ar'}catch(e){}
+if(LANG!=='en')LANG='ar';
+var k_of=function(n){return bi('عارف '+n+' من '+LOS.length,'Know '+n+' of '+LOS.length)};
+function applyLang(flip){
+  var app=$('#app');
+  app.setAttribute('lang',LANG);app.setAttribute('dir',LANG==='ar'?'rtl':'ltr');app.setAttribute('data-lang',LANG);
+  document.documentElement.lang=LANG;
+  $$('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-l')===LANG))});
+  $$('[data-al]').forEach(function(el){el.setAttribute('aria-label',LANG==='ar'?el.getAttribute('data-al'):el.getAttribute('data-ae'))});
+  if(flip){app.classList.remove('flip');void app.offsetWidth;app.classList.add('flip')}
+  try{localStorage.setItem('kfs-j2-lang',LANG)}catch(e){}
+}
+$('.lang').addEventListener('click',function(ev){
+  var b=ev.target.closest?ev.target.closest('button[data-l]'):null;if(!b)return;
+  var l=b.getAttribute('data-l');if(l===LANG)return;
+  LANG=l;applyLang(true);
+});
+
+/* ---- state ---- */
+var box={};
+try{box=JSON.parse(localStorage.getItem('kfs-j2-box')||'{}')||{}}catch(e){box={}}
+function save(){try{localStorage.setItem('kfs-j2-box',JSON.stringify(box))}catch(e){}}
+function bx(o){return box[o.id]||0}
+function tagOf(o){return o.lo?o.s+' LO'+o.lo:o.s}
+function dotsHTML(n){var h='';for(var i=0;i<3;i++)h+='<i class="'+(i<n?'on':'')+'"></i>';return h}
+function known(){return LOS.filter(function(o){return bx(o)>=2}).length}
+function progress(){
+  var k=known();
+  $('#progTxt').innerHTML=k_of(k);
+  $('#progBar').style.width=Math.round(k/LOS.length*100)+'%';
+}
+function setBox(o,v){box[o.id]=Math.max(0,Math.min(3,v));save();}
+
+/* ---- scroll reveal ---- */
+var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){
+  es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}});
+},{threshold:.1,rootMargin:'0px 0px -4% 0px'}):null;
+function watch(){$$('.rv:not(.in)').forEach(function(el){if(io)io.observe(el);else el.classList.add('in')})}
+
+/* ---- map ---- */
+var LBL={c:['المفهوم','Concept'],l:['الربط','Link'],e:['المثال','Example'],x:['بس','Caveat'],xl:['الخلاصة','Takeaway']};
+function xLabel(o){var p=o.xl?LBL.xl:LBL.x;return bi(p[0],p[1])}
+function loHTML(o,idx){
+  var rows='<div><dt>'+bi(LBL.c[0],LBL.c[1])+'</dt><dd>'+bi(o.c,o.C)+'</dd></div>'+
+           '<div class="link"><dt>'+bi(LBL.l[0],LBL.l[1])+'</dt><dd>'+bi(o.l,o.L)+'</dd></div>'+
+           '<div><dt>'+bi(LBL.e[0],LBL.e[1])+'</dt><dd>'+bi(o.e,o.E)+'</dd></div>'+
+           (o.x?'<div><dt>'+xLabel(o)+'</dt><dd>'+bi(o.x,o.X)+'</dd></div>':'');
+  return '<details class="lo rv" style="--d:'+(Math.min(idx,5)*0.06)+'s" id="lo-'+o.id+'"><summary><span class="tag">'+esc(tagOf(o))+'</span>'+
+    '<span class="nm"><b>'+esc(o.t)+'</b><span class="h">'+bi(o.h,o.H)+'</span></span>'+
+    '<span class="side"><span class="dots" role="img" data-al="مستوى الحفظ" data-ae="Memory level">'+dotsHTML(bx(o))+'</span><span class="chev" aria-hidden="true"></span></span></summary>'+
+    '<div class="body"><dl>'+rows+'</dl><button type="button" class="know" data-id="'+o.id+'" aria-pressed="'+(bx(o)>=3)+'">'+knowTxt(o)+'</button></div></details>';
+}
+function knowTxt(o){return bx(o)>=3?bi('عارفها','Known'):bi('علّم إني عارفها','Mark as known')}
+function renderMap(){
+  $('#tiles').innerHTML=GROUPS.map(function(g,i){
+    var items=LOS.filter(function(o){return o.g===i});
+    var subs=[];items.forEach(function(o){if(subs.indexOf(o.s)<0)subs.push(o.s)});
+    return '<button type="button" class="tile rv" data-n="'+(i+1)+'" style="--g:var('+g.css+');--d:'+(i*0.08)+'s" data-go="grp'+i+'"><b>'+bi(g.v,g.V)+'</b><span>'+items.length+' LO</span><small>'+subs.join(' · ')+'</small></button>';
+  }).join('');
+  $('#groups').innerHTML=GROUPS.map(function(g,i){
+    return '<section class="grp rv" id="grp'+i+'" style="--g:var('+g.css+')"><header><h2>'+bi(g.v,g.V)+'</h2><p>'+bi(g.q,g.Q)+'</p></header><div class="list">'+
+      LOS.filter(function(o){return o.g===i}).map(function(o,j){return loHTML(o,j)}).join('')+'</div></section>';
+  }).join('');
+}
+function refreshMap(){
+  LOS.forEach(function(o){
+    var d=$('#lo-'+o.id);if(!d)return;
+    $('.dots',d).innerHTML=dotsHTML(bx(o));
+    var b=$('.know',d);b.setAttribute('aria-pressed',String(bx(o)>=3));b.innerHTML=knowTxt(o);
+  });
+  progress();
+}
+document.addEventListener('click',function(ev){
+  var t=ev.target.closest?ev.target.closest('.tile'):null;
+  if(t){var el=document.getElementById(t.getAttribute('data-go'));if(el)el.scrollIntoView({behavior:'smooth',block:'start'});return}
+  var k=ev.target.closest?ev.target.closest('.know'):null;
+  if(k){var o=LOS.filter(function(x){return x.id===k.getAttribute('data-id')})[0];setBox(o,bx(o)>=3?0:3);refreshMap()}
+});
+
+/* ---- recall ---- */
+var mode='flash',filt=-1,cur=null,shown=false,fresh=true;
+function pool(){return LOS.filter(function(o){return filt<0||o.g===filt})}
+function pick(){
+  var p=pool();
+  var lo=Math.min.apply(null,p.map(bx));
+  var cap=Math.random()<0.25?lo+1:lo;
+  var c=p.filter(function(o){return bx(o)<=cap&&(p.length===1||!cur||o.id!==cur.id)});
+  if(!c.length)c=p;
+  return c[Math.floor(Math.random()*c.length)];
+}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function ansHTML(o){
+  return '<dl class="ans"><div class="link"><dt>'+bi(LBL.l[0],LBL.l[1])+'</dt><dd>'+bi(o.l,o.L)+'</dd></div><div><dt>'+bi(LBL.e[0],LBL.e[1])+'</dt><dd>'+bi(o.e,o.E)+'</dd></div>'+(o.x?'<div><dt>'+xLabel(o)+'</dt><dd>'+bi(o.x,o.X)+'</dd></div>':'')+'</dl>';
+}
+function stage(){
+  var st=$('#stage');
+  if(!cur)cur=pick();
+  var fc=fresh?' fresh':'';fresh=false;
+  if(mode==='flash'){
+    st.innerHTML='<div class="fc'+fc+'"><span class="tag" style="--g:var('+GROUPS[cur.g].css+')">'+esc(tagOf(cur))+'</span><h3>'+esc(cur.t)+'</h3>'+
+      (shown?ansHTML(cur)+'<div class="row-b"><button type="button" class="btn" data-r="1">'+bi('عرفتها','Got it')+'</button><button type="button" class="btn alt" data-r="0">'+bi('نسيت','Forgot')+'</button></div>'
+            :'<p class="cue">'+bi('قول الكونيكشن بصوتك قبل ما تكشف: الربط، المثال، بس.','Say the connection out loud before revealing: link, example, caveat.')+'</p><div class="row-b"><button type="button" class="btn" id="reveal">'+bi('اكشف الإجابة','Reveal answer')+'</button></div>')+'</div>';
+  }else{
+    var same=shuffle(LOS.filter(function(o){return o.id!==cur.id&&o.g===cur.g})).slice(0,2);
+    var rest=shuffle(LOS.filter(function(o){return o.id!==cur.id&&o.g!==cur.g})).slice(0,3-same.length);
+    var opts=shuffle([cur].concat(same,rest));
+    st.innerHTML='<div class="fc'+fc+'"><p class="cue">'+bi('المثال ده بتاع أنهي LO؟','Which LO is this example from?')+'</p><p class="ex">'+bi(cur.e,cur.E)+'</p><div class="opts">'+
+      opts.map(function(o){return '<button type="button" class="opt" data-id="'+o.id+'"><span class="tag">'+esc(tagOf(o))+'</span><span>'+esc(o.t)+'</span></button>'}).join('')+
+      '</div><div id="gfb"></div></div>';
+  }
+}
+function next(){cur=pick();shown=false;fresh=true;stage()}
+function cardFx(cls){var c=$('#stage .fc');if(!c)return;c.classList.remove('okp','shake');void c.offsetWidth;c.classList.add(cls)}
+$('#stage').addEventListener('click',function(ev){
+  var t=ev.target;
+  if(!t.closest)return;
+  if(t.closest('#reveal')){shown=true;stage();return}
+  var r=t.closest('[data-r]');
+  if(r){setBox(cur,bx(cur)+(r.getAttribute('data-r')==='1'?1:-bx(cur)));progress();refreshMap();next();return}
+  var op=t.closest('.opt');
+  if(op&&!op.disabled){
+    var ok=op.getAttribute('data-id')===cur.id;
+    $$('.opt').forEach(function(b){b.disabled=true;if(b.getAttribute('data-id')===cur.id)b.classList.add('right')});
+    if(!ok)op.classList.add('wrong');
+    setBox(cur,ok?bx(cur)+1:bx(cur)-1);progress();refreshMap();
+    $('#gfb').innerHTML='<p class="fb '+(ok?'ok':'no')+'">'+(ok?bi('صح','Correct'):bi('لأ، الصح هو ','No, the right one is ')+esc(tagOf(cur)))+'</p><p style="margin-top:.4rem">'+bi(cur.l,cur.L)+'</p><div class="row-b" style="margin-top:.8rem"><button type="button" class="btn" id="nextG">'+bi('التالي','Next')+'</button></div>';
+    if(ok)cardFx('okp');
+    return;
+  }
+  if(t.closest('#nextG'))next();
+});
+function setMode(m){
+  mode=m;shown=false;fresh=true;
+  $('#mFlash').setAttribute('aria-pressed',String(m==='flash'));
+  $('#mGuess').setAttribute('aria-pressed',String(m==='guess'));
+  stage();
+}
+$('#mFlash').addEventListener('click',function(){setMode('flash')});
+$('#mGuess').addEventListener('click',function(){setMode('guess')});
+function renderChips(){
+  var h='<button type="button" class="chip" data-f="-1" aria-pressed="true">'+bi('الكل','All')+'</button>'+GROUPS.map(function(g,i){return '<button type="button" class="chip" data-f="'+i+'" aria-pressed="false" style="--g:var('+g.css+')">'+bi(g.v,g.V)+'</button>'}).join('');
+  $('#chips').innerHTML=h;
+}
+$('#chips').addEventListener('click',function(ev){
+  var c=ev.target.closest?ev.target.closest('.chip'):null;if(!c)return;
+  filt=parseInt(c.getAttribute('data-f'),10);
+  $$('.chip').forEach(function(b){b.setAttribute('aria-pressed',String(b===c))});
+  cur=null;shown=false;fresh=true;stage();
+});
+
+/* ---- numbers ---- */
+var R=function(a){return a[Math.floor(Math.random()*a.length)]};
+var r2=function(x){return Math.round(x*100)/100};
+var GEN=[
+ {tag:'Biology LO3',title:['نسبة فقد الميّة','Water loss percentage'],f:'Water loss % = lost ÷ initial × 100',unit:'%',tol:0.05,
+  gen:function(){var i=R([50,100,200,250,400]),p=R([4,5,8,10,12,15,20,25]),l=i*p/100;return{q:['عينة كتلتها الأولى '+i+' g وفقدت '+l+' g ميّة. نسبة الفقد؟','A sample starts at '+i+' g and loses '+l+' g of water. What is the loss percentage?'],ans:p,steps:[l+' ÷ '+i+' × 100 = '+p+'%']}}},
+ {tag:'Geology LO4',title:['الـ density','Density'],f:'ρ = m ÷ V',unit:'g/cm³',tol:0.011,
+  gen:function(){var m=R([60,90,120,150,180,240]),v=R([100,150,200,300,400]),a=r2(m/v);return{q:['عينة كتلتها '+m+' g وحجمها '+v+' cm³. الـ density؟','A sample has a mass of '+m+' g and a volume of '+v+' cm³. What is its density?'],ans:a,steps:[m+' ÷ '+v+' = '+a+' g/cm³']}}},
+ {tag:'Math LO1',title:['ارتفاع لوح مائل','Height of a tilted panel'],f:'h = L × sin θ',unit:'cm',tol:0.03,
+  gen:function(){var L=R([10,20,30,40]),th=R([30,45,60]),a=r2(L*Math.sin(th*Math.PI/180));return{q:['لوح طوله '+L+' cm ومائل بزاوية '+th+'°. ارتفاعه الرأسي؟ (قرّب لرقمين بعد العلامة)','A panel is '+L+' cm long and tilted at '+th+'°. What is its vertical height? (round to 2 decimals)'],ans:a,steps:[L+' × sin '+th+'° = '+a+' cm']}}},
+ {tag:'Math LO2',title:['الـ mean','Mean'],f:'mean = (a + b + c) ÷ 3',unit:'°C',tol:0.06,
+  gen:function(){var a=R([2,3,4,5,6]),b=R([4,5,6,7,8]),c=R([6,7,8,9,10]);var m=r2((a+b+c)/3);return{q:['3 اختبارات نزّلت الحرارة '+a+' و'+b+' و'+c+' °C. الـ mean؟','3 tests dropped the temperature by '+a+', '+b+' and '+c+' °C. What is the mean?'],ans:m,steps:['('+a+' + '+b+' + '+c+') ÷ 3 = '+m+' °C']}}},
+ {tag:'Math LO2',title:['الـ range','Range'],f:'range = max − min',unit:'°C',tol:0.001,
+  gen:function(){var a=R([2,3,4,5,6]),b=R([4,5,6,7,8]),c=R([6,7,8,9,10]);var mx=Math.max(a,b,c),mn=Math.min(a,b,c);return{q:['3 اختبارات نزّلت الحرارة '+a+' و'+b+' و'+c+' °C. الـ range؟','3 tests dropped the temperature by '+a+', '+b+' and '+c+' °C. What is the range?'],ans:mx-mn,steps:[mx+' − '+mn+' = '+(mx-mn)+' °C']}}},
+ {tag:'Math LO3',title:['حجم الصندوق','Volume of the box'],f:'V = L × W × H',unit:'cm³',tol:0.001,
+  gen:function(){var l=R([10,12,15,20,25]),w=R([5,8,10,15]),h=R([4,6,10,12]);return{q:['بروتوتايب مستطيل: طول '+l+' cm وعرض '+w+' cm وارتفاع '+h+' cm. حجمه؟','A rectangular prototype: length '+l+' cm, width '+w+' cm, height '+h+' cm. What is its volume?'],ans:l*w*h,steps:[l+' × '+w+' × '+h+' = '+(l*w*h)+' cm³']}}},
+ {tag:'Mechanics LO2',title:['السرعة النهائية','Final velocity'],f:'v = u + at',unit:'m/s',tol:0.001,
+  gen:function(){var u=R([0,2,4]),a=R([1,2,3,4]),t=R([2,3,4,5]);return{q:['جسم سرعته الابتدائية '+u+' m/s وتسارعه '+a+' m/s² لمدة '+t+' s. سرعته النهائية؟','An object has an initial velocity of '+u+' m/s and accelerates at '+a+' m/s² for '+t+' s. What is its final velocity?'],ans:u+a*t,steps:[u+' + '+a+' × '+t+' = '+(u+a*t)+' m/s']}}},
+ {tag:'Chemistry LO1',title:['نزول الحرارة','Temperature drop'],f:'ΔT = T_initial − T_final',unit:'°C',tol:0.001,
+  gen:function(){var ti=R([50,60,70,80]),d=R([5,8,10,12,15,20]);return{q:['الحرارة بدأت '+ti+'°C وبعد 20 دقيقة بقت '+(ti-d)+'°C. قد إيه نزلت؟','The temperature started at '+ti+'°C and after 20 minutes it is '+(ti-d)+'°C. How much did it drop?'],ans:d,steps:[ti+' − '+(ti-d)+' = '+d+'°C']}}},
+ {tag:'Physics LO1',title:['تغيّر الحرارة بالإشارة','Signed temperature change'],f:'ΔT = T_final − T_initial',unit:'°C',tol:0.001,
+  gen:function(){var ti=R([40,45,50,55]),d=R([4,6,8,10]);return{q:['الحرارة نزلت من '+ti+'°C إلى '+(ti-d)+'°C. قيمة ΔT بالإشارة؟','The temperature fell from '+ti+'°C to '+(ti-d)+'°C. What is ΔT, with its sign?'],ans:-d,steps:[(ti-d)+' − '+ti+' = −'+d+'°C (السالب يعني نزول)',(ti-d)+' − '+ti+' = −'+d+'°C (negative means it dropped)']}}},
+ {tag:'Chemistry LO3',title:['تردد الضوء','Frequency of light'],f:'f = c ÷ λ , c = 3×10⁸ m/s',unit:'×10¹⁴ Hz',tol:0.02,
+  gen:function(){var l=R([400,450,500,600,700]),a=r2(3000/l);return{q:['ضوء طوله الموجي '+l+' nm. التردد f بوحدة 10¹⁴ Hz؟ (قرّب لرقمين بعد العلامة)','Light has a wavelength of '+l+' nm. What is the frequency f in units of 10¹⁴ Hz? (round to 2 decimals)'],ans:a,steps:['f = 3×10⁸ ÷ ('+l+'×10⁻⁹) = '+a+'×10¹⁴ Hz']}}},
+ {tag:'Physics LO2 · LO4',title:['القوة من الكتلة','Force from mass'],f:'N = mg , g = 9.8 m/s²',unit:'N',tol:0.011,
+  gen:function(){var m=R([0.5,1,2,3,5]),a=r2(m*9.8);return{q:['جسم كتلته '+m+' kg على سطح أفقي ساكن. قوة الدعم N (أو الوزن)؟','An object of mass '+m+' kg rests on a horizontal surface. What is the support force N (or the weight)?'],ans:a,steps:[m+' × 9.8 = '+a+' N']}}}
+];
+var probs=[];
+function stepsHTML(s){return s.length>1?bi(s[0],s[1]):esc(s[0])}
+function parseNum(s){
+  s=String(s).trim().replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d)}).replace(/[٫,]/g,'.').replace(/[−–]/g,'-').replace(/\s+/g,'');
+  if(!/^-?\d*\.?\d+$/.test(s))return NaN;
+  return parseFloat(s);
+}
+function numCard(i,isFresh){
+  var g=GEN[i],p=probs[i];
+  return '<article class="num rv'+(isFresh?' fresh in':'')+'" style="--d:'+((i%3)*0.07)+'s" id="nc'+i+'"><span class="tag">'+esc(g.tag)+'</span><h3>'+bi(g.title[0],g.title[1])+'</h3><code>'+esc(g.f)+'</code>'+
+   '<p class="q">'+bi(p.q[0],p.q[1])+'</p><div class="inrow"><input id="in'+i+'" type="text" inputmode="decimal" autocomplete="off" data-al="إجابتك" data-ae="Your answer"><span class="unit">'+esc(g.unit)+'</span><button type="button" class="btn sm" data-n="check" data-i="'+i+'">'+bi('اتأكد','Check')+'</button></div>'+
+   '<p class="res" id="rs'+i+'" aria-live="polite"></p><div class="row-b"><button type="button" class="btn alt sm" data-n="new" data-i="'+i+'">'+bi('أرقام تانية','New numbers')+'</button><button type="button" class="btn alt sm" data-n="sol" data-i="'+i+'">'+bi('الحل','Solution')+'</button></div><div id="so'+i+'"></div></article>';
+}
+function renderNums(){
+  probs=GEN.map(function(g){return g.gen()});
+  $('#nums').innerHTML=GEN.map(function(g,i){return numCard(i)}).join('');
+}
+function cardCls(el,c){el.classList.remove('good','bad');void el.offsetWidth;el.classList.add(c)}
+$('#nums').addEventListener('click',function(ev){
+  var b=ev.target.closest?ev.target.closest('[data-n]'):null;if(!b)return;
+  var i=parseInt(b.getAttribute('data-i'),10),act=b.getAttribute('data-n'),g=GEN[i];
+  if(act==='check'){
+    var v=parseNum($('#in'+i).value),rs=$('#rs'+i),card=$('#nc'+i);
+    rs.className='res';void rs.offsetWidth;
+    if(isNaN(v)){rs.className='res no';rs.innerHTML=bi('اكتب رقم.','Enter a number.');return}
+    if(Math.abs(v-probs[i].ans)<=g.tol){rs.className='res ok';rs.innerHTML=bi('صح','Correct');cardCls(card,'good')}
+    else{rs.className='res no';rs.innerHTML=bi('مش دقيق. راجع القانون وجرّب تاني، أو دوس الحل.','Not quite. Review the formula and try again, or tap Solution.');cardCls(card,'bad')}
+  }else if(act==='sol'){
+    $('#so'+i).innerHTML='<p class="sol">'+stepsHTML(probs[i].steps)+'</p>';
+  }else if(act==='new'){
+    probs[i]=g.gen();
+    var w=document.createElement('div');w.innerHTML=numCard(i,true);
+    $('#nc'+i).replaceWith(w.firstChild);
+    applyLang(false);
+    var inp=$('#in'+i);if(inp)inp.focus();
+  }
+});
+$('#nums').addEventListener('keydown',function(ev){
+  if(ev.key==='Enter'&&ev.target.tagName==='INPUT'){
+    var i=ev.target.id.replace('in','');var b=$('[data-n="check"][data-i="'+i+'"]');if(b)b.click();
+  }
+});
+
+/* ---- insulation race animation ---- */
+var demo={raf:0,start:0,dur:7000,played:false};
+function mix(a,b,t){return Math.round(a+(b-a)*t)}
+function tcol(T){var t=Math.max(0,Math.min(1,(60-T)/32));return 'rgb('+mix(226,70,t)+','+mix(82,130,t)+','+mix(60,210,t)+')'}
+var DI=8,DB=22; /* total ΔT after 20 min: insulated vs bare */
+function ease(p){return 1-Math.pow(1-p,1.6)}
+function Y(T){return 220-(T-30)/30*180}
+function drawDemo(p){
+  var e=ease(p),Ti=60-DI*e,Tb=60-DB*e;
+  $('#liqA').setAttribute('fill',tcol(Tb));$('#liqB').setAttribute('fill',tcol(Ti));
+  $('#tA').textContent=Tb.toFixed(1)+'°C';$('#tB').textContent=Ti.toFixed(1)+'°C';
+  var N=48,pa=[],pb=[],n=Math.max(1,Math.round(N*p));
+  for(var s=0;s<=n;s++){var q=s/N,ee=ease(q);pa.push((360+q*290).toFixed(1)+','+Y(60-DB*ee).toFixed(1));pb.push((360+q*290).toFixed(1)+','+Y(60-DI*ee).toFixed(1))}
+  $('#lnA').setAttribute('points',pa.join(' '));$('#lnB').setAttribute('points',pb.join(' '));
+  var x=360+p*290;
+  $('#dA').setAttribute('cx',x);$('#dA').setAttribute('cy',Y(Tb));
+  $('#dB').setAttribute('cx',x);$('#dB').setAttribute('cy',Y(Ti));
+  $('#clock').textContent='t = '+(p*20).toFixed(1).replace(/\.0$/,'')+' min';
+}
+function runDemo(){
+  cancelAnimationFrame(demo.raf);demo.played=true;
+  var v=$('#verdict');v.classList.remove('show');v.innerHTML='';
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function done(){
+    v.innerHTML=bi('ΔT = '+DI+'°C مقابل '+DB+'°C ← الحاوية المعزولة خسرت حرارة أقل، يعني عزلها أحسن.','ΔT = '+DI+'°C vs '+DB+'°C → the insulated container lost less heat, so its insulation is better.');
+    requestAnimationFrame(function(){v.classList.add('show')});
+  }
+  if(reduce){drawDemo(1);done();return}
+  demo.start=0;
+  function step(ts){
+    if(!demo.start)demo.start=ts;
+    var p=Math.min(1,(ts-demo.start)/demo.dur);
+    drawDemo(p);
+    if(p<1)demo.raf=requestAnimationFrame(step);else done();
+  }
+  demo.raf=requestAnimationFrame(step);
+}
+$('#demoBtn').addEventListener('click',runDemo);
+drawDemo(0);
+if('IntersectionObserver' in window){
+  var dio=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting&&!demo.played){runDemo();dio.disconnect()}})},{threshold:.35});
+  dio.observe($('#demoCard'));
+}else{runDemo()}
+
+/* ---- routing ---- */
+var NAMES=['map','drill','numbers'];
+function route(){
+  var h=(location.hash||'#map').slice(1);
+  if(NAMES.indexOf(h)<0)h='map';
+  $$('[data-p]').forEach(function(s){s.hidden=s.getAttribute('data-p')!==h});
+  $$('.tabs a').forEach(function(a){if(a.getAttribute('data-t')===h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  window.scrollTo(0,0);
+  watch();
+}
+window.addEventListener('hashchange',route);
+
+renderMap();renderChips();renderNums();progress();stage();applyLang(false);route();watch();
+})();
+</script>
+</body>
+</html>
